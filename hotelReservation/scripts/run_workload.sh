@@ -1,20 +1,43 @@
 #!/bin/bash
 set -e
 
+# Default Configuration Values
+GATEWAY_IP="node-0"
+GATEWAY_PORT="5000"
+RATE=1000
+CONNECTIONS=256
+THREADS=16
+DURATION="60s"
+
+# Help menu function
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -i  Gateway IP/Hostname (default: $GATEWAY_IP)"
+    echo "  -r  Target Requests Per Second (default: $RATE)"
+    echo "  -c  Number of open HTTP connections (default: $CONNECTIONS)"
+    echo "  -t  Number of wrk2 OS threads (default: $THREADS)"
+    echo "  -d  Duration of the test (default: $DURATION)"
+    echo "  -h  Show this help message"
+    exit 1
+}
+
+# Parse command-line flags
+while getopts "i:r:c:t:d:h" opt; do
+    case ${opt} in
+        i ) GATEWAY_IP=$OPTARG ;;
+        r ) RATE=$OPTARG ;;
+        c ) CONNECTIONS=$OPTARG ;;
+        t ) THREADS=$OPTARG ;;
+        d ) DURATION=$OPTARG ;;
+        h ) usage ;;
+        \? ) echo "Invalid option: -$OPTARG" >&2; usage ;;
+    esac
+done
+
 echo "======================================================"
 echo " Initiating DeathStarBench wrk2 Workload Generator"
 echo "======================================================"
-
-# Configuration Variables 
-# You can pass the Gateway IP as the first argument, or it defaults to node-0
-GATEWAY_IP=${1:-"node-0"} 
-GATEWAY_PORT="5000"
-
-# Tuning parameters (Default: 1000 requests/sec for 60 seconds)
-RATE=${2:-1000}       # Target Requests Per Second (RPS)
-CONNECTIONS=${3:-256} # Number of open HTTP connections
-THREADS=${4:-16}      # Number of wrk2 OS threads (match this to your node's CPU cores)
-DURATION=${5:-"60s"}  # How long to run the experiment
 
 # Paths (Assuming you run this from the hotelReservation directory)
 WRK_BIN="../wrk2/wrk"
