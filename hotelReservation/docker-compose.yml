@@ -13,6 +13,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==gateway"
 
   frontend:
     configs:
@@ -35,6 +38,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==gateway"
 
   profile:
     configs:
@@ -57,6 +63,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   search:
     configs:
@@ -77,6 +86,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   geo:
     configs:
@@ -98,6 +110,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   rate:
     configs:
@@ -120,6 +135,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   review:
     environment:
@@ -137,6 +155,13 @@ services:
       - memcached-review
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
   
   attractions:
     environment:
@@ -153,6 +178,13 @@ services:
       - mongodb-attractions
       - consul
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   recommendation:
     configs:
@@ -174,6 +206,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   user:
     configs:
@@ -195,6 +230,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   reservation:
     configs:
@@ -217,6 +255,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==compute"
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -234,6 +275,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==gateway"
 
   memcached-rate:
     image: memcached:latest
@@ -249,10 +293,12 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==cache"
 
   memcached-review:
     image: memcached
-    # hostname: user-memcached
     container_name: 'hotel_reserv_review_mmc'
     restart: always
     environment:
@@ -261,6 +307,13 @@ services:
     logging:
       options:
         max-size: 50m
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==cache"
 
   memcached-profile:
     image: memcached:latest
@@ -276,6 +329,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==cache"
 
   memcached-reserve:
     image: memcached:latest
@@ -291,6 +347,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==cache"
 
   mongodb-geo:
     image: mongo:5.0
@@ -302,6 +361,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-profile:
     image: mongo:5.0
@@ -313,6 +375,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-rate:
     image: mongo:5.0
@@ -324,6 +389,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-review:
     image: mongo:5.0
@@ -335,6 +403,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-attractions:
     image: mongo:5.0
@@ -346,6 +417,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-recommendation:
     image: mongo:5.0
@@ -357,6 +431,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-reservation:
     image: mongo:5.0
@@ -368,6 +445,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
   mongodb-user:
     image: mongo:5.0
@@ -379,6 +459,9 @@ services:
       replicas: 1
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - "node.labels.tier==data"
 
 volumes:
   geo:
