@@ -4,6 +4,7 @@ import sys
 import time
 import struct
 import argparse
+import csv
 
 PAGE_SIZE = os.sysconf("SC_PAGE_SIZE") # Typically 4096 bytes
 
@@ -16,7 +17,6 @@ def get_vma_ranges(pid):
                 parts = line.split()
                 if not parts:
                     continue
-                # The first column is the address range (e.g., "00400000-0040c000")
                 addr_range = parts[0]
                 start_hex, end_hex = addr_range.split("-")
                 ranges.append((int(start_hex, 16), int(end_hex, 16)))
@@ -42,27 +42,22 @@ def count_dirty_pages(pid, ranges):
             for start, end in ranges:
                 start_page = start // PAGE_SIZE
                 num_pages = (end - start) // PAGE_SIZE
-                
-                # Seek to the pagemap entry for the start of this VMA
                 f.seek(start_page * 8)
-                
                 bytes_to_read = num_pages * 8
-                chunk_size = 8192  # Read in chunks to manage memory
+                chunk_size = 8192
                 
                 while bytes_to_read > 0:
                     read_size = min(bytes_to_read, chunk_size)
                     try:
                         data = f.read(read_size)
                     except OSError:
-                        break # Skip unreadable memory regions
+                        break 
                         
                     if not data:
                         break
                         
-                    # Unpack as 64-bit unsigned integers
                     entries = struct.unpack(f"={len(data)//8}Q", data)
                     for entry in entries:
-                        # Bit 55 is the soft-dirty bit in the Linux pagemap
                         if (entry >> 55) & 1:
                             dirty_pages += 1
                             
@@ -73,41 +68,52 @@ def count_dirty_pages(pid, ranges):
     return dirty_pages
 
 def main():
-    parser = argparse.ArgumentParser(description="Track dirty page rate of a process via pagemap.")
+    parser = argparse.ArgumentParser(description="Track dirty page rate of a process.")
     parser.add_argument("pid", type=int, help="Target Process ID (Host PID)")
     parser.add_argument("--interval", type=float, default=1.0, help="Sampling interval in seconds")
+    parser.add_argument("--output", type=str, default="dirty_pages_log.csv", help="Output CSV file name")
     args = parser.parse_args()
 
     pid = args.pid
     interval = args.interval
+    output_file = args.output
 
     print(f"Tracking dirty pages for PID {pid} every {interval}s...")
-    print("Time\t\tDirty Pages\tRate (MB/s)")
-    print("-" * 50)
+    print(f"Saving data to: {output_file}")
+    print("Elapsed(s)\tTime\t\tDirty Pages\tRate (MB/s)")
+    print("-" * 60)
+
+    start_time = time.time()
 
     try:
-        while True:
-            # 1. Map memory ranges
-            vma_ranges = get_vma_ranges(pid)
+        with open(output_file, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile)
+            # Write the header row
+            csv_writer.writerow(["Elapsed_Seconds", "Timestamp", "Dirty_Pages", "Rate_MB_per_sec"])
             
-            # 2. Clear the soft-dirty bits
-            clear_soft_dirty(pid)
-            
-            # 3. Wait for the application to modify memory
-            time.sleep(interval)
-            
-            # 4. Count how many pages were dirtied
-            dirty_count = count_dirty_pages(pid, vma_ranges)
-            
-            # 5. Calculate MB/s
-            mb_dirtied = (dirty_count * PAGE_SIZE) / (1024 * 1024)
-            mb_per_sec = mb_dirtied / interval
-            
-            current_time = time.strftime("%H:%M:%S")
-            print(f"{current_time}\t{dirty_count}\t\t{mb_per_sec:.2f} MB/s")
-            
+            while True:
+                vma_ranges = get_vma_ranges(pid)
+                clear_soft_dirty(pid)
+                
+                time.sleep(interval)
+                
+                dirty_count = count_dirty_pages(pid, vma_ranges)
+                
+                mb_dirtied = (dirty_count * PAGE_SIZE) / (1024 * 1024)
+                mb_per_sec = mb_dirtied / interval
+                
+                current_time = time.strftime("%H:%M:%S")
+                elapsed_sec = time.time() - start_time
+                
+                # Print to console
+                print(f"{elapsed_sec:.1f}\t\t{current_time}\t{dirty_count}\t\t{mb_per_sec:.2f} MB/s")
+                
+                # Write to CSV and flush immediately so it saves if you Ctrl+C
+                csv_writer.writerow([f"{elapsed_sec:.2f}", current_time, dirty_count, f"{mb_per_sec:.4f}"])
+                csvfile.flush()
+                
     except KeyboardInterrupt:
-        print("\nStopping tracker.")
+        print("\nStopping tracker. Data saved.")
 
 if __name__ == "__main__":
     main()
