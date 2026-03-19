@@ -8,7 +8,10 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 input_csv = sys.argv[1]
-output_png = input_csv.replace('.csv', '.png')
+output_dir = "./output"
+os.makedirs(output_dir, exist_ok=True)
+base_name = os.path.basename(input_csv)
+output_png = os.path.join(output_dir, base_name.replace('.csv', '.png'))
 
 elapsed_times = []
 mbps_rates = []

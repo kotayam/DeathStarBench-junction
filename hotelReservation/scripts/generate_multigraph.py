@@ -11,7 +11,11 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 csv_files = sys.argv[1:]
-output_png = "combined_dirty_rate.png"
+output_dir = "./output"
+os.makedirs(output_dir, exist_ok=True)
+timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+output_filename = f"combined_dirty_rate_{timestamp_str}.png"
+output_png = os.path.join(output_dir, output_filename)
 
 # Create a slightly wider figure to accommodate the legend and time axis
 plt.figure(figsize=(12, 7))

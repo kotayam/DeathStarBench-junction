@@ -79,9 +79,12 @@ def main():
     interval = args.interval
     # only use the node name
     hostname = socket.gethostname().split('.')[0]
-    
     # Dynamically generate filename if not explicitly provided
-    output_file = args.output if args.output else f"dirty_pages_{hostname}_{pid}.csv"
+    base_filename = args.output if args.output else f"dirty_pages_{hostname}_{pid}.csv"
+
+    output_dir = "./output"
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, os.path.basename(base_filename))
 
     print(f"Tracking dirty pages for PID {pid} every {interval}s...")
     print(f"Saving data to: {output_file}")
