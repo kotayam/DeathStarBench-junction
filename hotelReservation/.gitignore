@@ -1,0 +1,2 @@
+# ignore outputs from dirty bit tracker
+*.csv
