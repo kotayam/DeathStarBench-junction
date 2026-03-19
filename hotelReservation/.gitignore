@@ -1,3 +1,2 @@
-# ignore outputs from dirty bit tracker
-*.csv
-*.png
+# ignore output dir
+output/
