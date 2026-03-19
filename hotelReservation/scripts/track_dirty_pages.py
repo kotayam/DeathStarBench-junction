@@ -5,6 +5,7 @@ import time
 import struct
 import argparse
 import csv
+import socket
 
 PAGE_SIZE = os.sysconf("SC_PAGE_SIZE") # Typically 4096 bytes
 
@@ -71,12 +72,15 @@ def main():
     parser = argparse.ArgumentParser(description="Track dirty page rate of a process.")
     parser.add_argument("pid", type=int, help="Target Process ID (Host PID)")
     parser.add_argument("--interval", type=float, default=1.0, help="Sampling interval in seconds")
-    parser.add_argument("--output", type=str, default="dirty_pages_log.csv", help="Output CSV file name")
+    parser.add_argument("--output", type=str, default=None, help="Output CSV file name")
     args = parser.parse_args()
 
     pid = args.pid
     interval = args.interval
-    output_file = args.output
+    hostname = socket.gethostname()
+    
+    # Dynamically generate filename if not explicitly provided
+    output_file = args.output if args.output else f"dirty_pages_{hostname}_{pid}.csv"
 
     print(f"Tracking dirty pages for PID {pid} every {interval}s...")
     print(f"Saving data to: {output_file}")
@@ -88,7 +92,6 @@ def main():
     try:
         with open(output_file, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
-            # Write the header row
             csv_writer.writerow(["Elapsed_Seconds", "Timestamp", "Dirty_Pages", "Rate_MB_per_sec"])
             
             while True:
@@ -105,10 +108,8 @@ def main():
                 current_time = time.strftime("%H:%M:%S")
                 elapsed_sec = time.time() - start_time
                 
-                # Print to console
                 print(f"{elapsed_sec:.1f}\t\t{current_time}\t{dirty_count}\t\t{mb_per_sec:.2f} MB/s")
                 
-                # Write to CSV and flush immediately so it saves if you Ctrl+C
                 csv_writer.writerow([f"{elapsed_sec:.2f}", current_time, dirty_count, f"{mb_per_sec:.4f}"])
                 csvfile.flush()
                 
