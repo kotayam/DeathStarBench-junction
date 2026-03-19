@@ -29,9 +29,9 @@ try:
     plt.figure(figsize=(10, 6))
     plt.plot(elapsed_times, mbps_rates, linestyle='-', color='#1f77b4', linewidth=2, label='Memory Dirty Rate')
 
-    plt.title(f'Application Memory Mutation vs. Time ({input_csv})', fontsize=14, fontweight='bold')
+    plt.title(f'Application Dirty Page Rate vs. Time ({input_csv})', fontsize=14, fontweight='bold')
     plt.xlabel('Elapsed Time (Seconds)', fontsize=12)
-    plt.ylabel('Mutation Rate (MB/s)', fontsize=12)
+    plt.ylabel('Dirty Page Rate (MB/s)', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.fill_between(elapsed_times, mbps_rates, alpha=0.2, color='#1f77b4')
     plt.tight_layout()
