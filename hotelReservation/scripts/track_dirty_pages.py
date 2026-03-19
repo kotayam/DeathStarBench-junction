@@ -77,7 +77,8 @@ def main():
 
     pid = args.pid
     interval = args.interval
-    hostname = socket.gethostname()
+    # only use the node name
+    hostname = socket.gethostname().split('.')[0]
     
     # Dynamically generate filename if not explicitly provided
     output_file = args.output if args.output else f"dirty_pages_{hostname}_{pid}.csv"
