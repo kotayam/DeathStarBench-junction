@@ -4,6 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime
+import os
 
 # Ensure the user provided at least one CSV file
 if len(sys.argv) < 2:
@@ -37,9 +38,11 @@ for file in csv_files:
         plt.plot(times, mbps_rates, linestyle='-', linewidth=2, label=file.replace('.csv', ''))
     
     except FileNotFoundError:
-        print(f"❌ Error: Could not find '{file}'. Skipping.")
+        print(f"❌ Error: Could not find '{file}'.")
+        sys.exit(1)
     except Exception as e:
         print(f"❌ An error occurred with '{file}': {e}")
+        sys.exit(1)
 
 # Format the X-axis to display the wall-clock time cleanly
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))

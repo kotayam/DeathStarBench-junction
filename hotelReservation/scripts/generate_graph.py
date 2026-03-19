@@ -2,6 +2,7 @@
 import sys
 import csv
 import matplotlib.pyplot as plt
+import os
 
 if len(sys.argv) < 2:
     print("Usage: ./generate_graph.py <input_csv_file>")
@@ -40,5 +41,7 @@ try:
 
 except FileNotFoundError:
     print(f"❌ Error: Could not find '{input_csv}'.")
+    sys.exit(1)
 except Exception as e:
     print(f"❌ An error occurred: {e}")
+    sys.exit(1)
