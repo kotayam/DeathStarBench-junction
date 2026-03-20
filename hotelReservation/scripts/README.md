@@ -32,3 +32,23 @@ Run the following scripts on the manager node.
 ./scripts/verify_topology.sh
 ```
 
+## Running workloads
+
+1. Start monitoring dirty page rates on the target nodes.
+
+```
+./scripts/monitor_service.sh <service name>
+```
+
+2. Generate the workload on the client node.
+
+```
+./scripts/run_workload.sh -r 1000 -c 128 -t 40 -d 120s
+```
+
+## Generating graphs
+
+- `generate_graph.py`
+- `generate_multigraph.py`: x-axis based on timestamp.
+- `generate_benchmark_graphs.py`
+- `compare_workloads.py`: x-axis based on elapsed time.
